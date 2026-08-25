@@ -1,0 +1,33 @@
+.sp-page {
+  padding: 1.5rem 2rem;
+  background: radial-gradient(circle at top left, #151c2f 0, #050816 45%, #02030a 100%);
+}
+
+.sp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+  color: #2196f3;
+}
+
+.sp-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.sp-table-card {
+  background: #ffffff;
+  border-radius: 6px;
+  padding: 0.5rem;
+}
+
+.sp-payload {
+  max-height: 60vh;
+  overflow: auto;
+  background: #0f172a;
+  color: #e5e7eb;
+  padding: 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}

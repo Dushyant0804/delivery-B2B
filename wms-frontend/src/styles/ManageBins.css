@@ -1,0 +1,192 @@
+
+
+/* CSS */
+.button-56 {
+    align-items: center;
+    background-color: #fee6e3;
+    border: 2px solid #111;
+    border-radius: 8px;
+    box-sizing: border-box;
+    color: #111;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    font-family: Inter,sans-serif;
+    font-size: 16px;
+    height: 48px;
+    line-height: 24px;
+    max-width: 100%;
+    padding: 0 25px;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  
+  .button-56:after {
+    background-color: #111;
+    border-radius: 8px;
+    content: "";
+    display: block;
+    height: 48px;
+    left: 0;
+    width: 100%;
+    position: absolute;
+    top: -2px;
+    transform: translate(8px, 8px);
+    transition: transform .2s ease-out;
+    z-index: -1;
+  }
+  
+  .button-56:hover:after {
+    transform: translate(0, 0);
+  }
+  
+  .button-56:active {
+    background-color: #ffdeda;
+    outline: 0;
+  }
+  
+  .button-56:hover {
+    outline: 0;
+  }
+  
+  @media (min-width: 768px) {
+    .button-56 {
+      padding: 0 40px;
+    }
+  }
+  
+  
+  .icon{
+    margin: 5px;
+  }
+  .circular-count {
+    margin-top: 4px;
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  
+  .circular-card {
+    width: 120px;
+    text-align: center;
+  }
+  
+  .circular-label {
+    margin-top: 5px;
+    font-weight: 500;
+  }
+
+  .bins-analytics-container {
+    display: flex;
+    justify-content: space-around;
+    background-color: #1e1e2f;
+    padding: 20px;
+    border-radius: 12px;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .bins-card {
+    background-color: #2c2c3f;
+    border-radius: 10px;
+    padding: 20px;
+    width: 220px;
+    text-align: center;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+    color: #fff;
+  }
+  
+  .bins-card .icon {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .bins-card .label {
+    font-size: 14px;
+    color: #ccc;
+  }
+  
+  .bins-card .value {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 8px 0;
+  }
+  
+  .mini-bars {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: flex-end;
+    height: 40px;
+    margin-top: 8px;
+  }
+  
+  .mini-bars div {
+    width: 8px;
+    background-color: #888;
+    border-radius: 3px;
+    transition: height 0.3s;
+  }
+  
+  /* Card-specific bar colors */
+  .green .mini-bars div { background-color: #7ed957; }
+  .orange .mini-bars div { background-color: #f5a623; }
+  .blue .mini-bars div { background-color: #42a5f5; }
+  .purple .mini-bars div { background-color: #a87ff5; }
+  
+  
+  .manage-bins-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 10px 16px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  
+  .bins-analytics-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .d-flex.mb-3 {
+    flex-wrap: wrap;
+  }
+  
+  .ag-grid-container {
+    flex-grow: 1;
+    overflow: hidden;
+  }
+
+.managebins-page{
+  padding: 20px;
+  background-color: #001d3d;
+}
+
+.filter-card {
+  margin-bottom: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.filter-input {
+  min-width: 200px;
+}
+
+.table-card {
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}

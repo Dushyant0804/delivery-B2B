@@ -1,0 +1,27 @@
+{
+  "files": {
+    "main.css": "/static/css/main.13c8c9b4.css",
+    "main.js": "/static/js/main.e0903cce.js",
+    "static/js/453.47ab0ccd.chunk.js": "/static/js/453.47ab0ccd.chunk.js",
+    "static/media/ready_for_dispatch.png": "/static/media/ready_for_dispatch.579589fed4b1db517780.png",
+    "static/media/sorting_logic_applied.png": "/static/media/sorting_logic_applied.46173e0c2877598d2cdc.png",
+    "static/media/parcel_routed.png": "/static/media/parcel_routed.6ae34fe7c8aa6a660a66.png",
+    "static/media/parcel_arrives.png": "/static/media/parcel_arrives.26a10f3c9248da540034.png",
+    "static/media/barcode_scanning.png": "/static/media/barcode_scanning.aa4b8c98771002262bc2.png",
+    "static/media/primeicons.svg": "/static/media/primeicons.6ed59f962963a4a73af2.svg",
+    "static/media/login_background_2.jpeg": "/static/media/login_background_2.19cc6f90dfa03eddcaa2.jpeg",
+    "static/media/primeicons.eot": "/static/media/primeicons.ff0c4cd79b2ffca2de54.eot",
+    "static/media/primeicons.woff": "/static/media/primeicons.8931fda1930c3bd21e96.woff",
+    "static/media/primeicons.ttf": "/static/media/primeicons.a5c2a53d1ff7a9ff5933.ttf",
+    "static/media/mechint_logo.jpeg": "/static/media/mechint_logo.b058376981017dda42f5.jpeg",
+    "static/media/primeicons.woff2": "/static/media/primeicons.024b32cc7bf399b1a847.woff2",
+    "index.html": "/index.html",
+    "main.13c8c9b4.css.map": "/static/css/main.13c8c9b4.css.map",
+    "main.e0903cce.js.map": "/static/js/main.e0903cce.js.map",
+    "453.47ab0ccd.chunk.js.map": "/static/js/453.47ab0ccd.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.13c8c9b4.css",
+    "static/js/main.e0903cce.js"
+  ]
+}

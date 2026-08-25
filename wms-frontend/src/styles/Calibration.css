@@ -1,0 +1,69 @@
+.calibration-page {
+  padding: 20px;
+  background-color: #001d3d;
+
+}
+
+.page-title {
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.filter-card {
+  margin-bottom: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.filter-input {
+  min-width: 200px;
+}
+
+.table-card {
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.p-dialog .p-dialog-content {
+  background: #f9fafb;
+}
+
+.p-dropdown {
+  margin-right: 1rem;
+}
+
+.p-chart {
+  margin-top: 1rem;
+}
+
+.summary-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.bg-card {
+  background: #ffffff;
+  border-radius: 10px;
+  transition: 0.3s ease;
+}
+
+.bg-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+h6 {
+  color: #555;
+  margin-bottom: 5px;
+}

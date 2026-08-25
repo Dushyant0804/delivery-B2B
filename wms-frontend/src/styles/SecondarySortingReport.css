@@ -1,0 +1,86 @@
+/* ================================
+   SECONDARY SORTING REPORT — WBN LIST MODAL
+   (everything else on this page reuses Parcels.css)
+================================ */
+
+.ssr-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 14, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+}
+
+.ssr-modal {
+  width: 100%;
+  max-width: 420px;
+  max-height: 70vh;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
+}
+
+.ssr-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid #1e293b;
+  color: #e2e8f0;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.ssr-modal-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: #1e293b;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.ssr-modal-close:hover {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+.ssr-modal-list {
+  overflow-y: auto;
+  padding: 0.4rem 1.1rem 1.1rem;
+}
+
+.ssr-modal-item {
+  padding: 0.55rem 0;
+  border-bottom: 1px solid #1e293b;
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  font-family: monospace;
+}
+
+.ssr-modal-empty {
+  padding: 2rem 0;
+  text-align: center;
+  color: #64748b;
+}
+
+.ssr-view-btn {
+  background: none;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 0.25rem 0.6rem;
+  color: #93c5fd;
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+
+.ssr-view-btn:hover {
+  background: #1e293b;
+}

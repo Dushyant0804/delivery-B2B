@@ -1,0 +1,102 @@
+.cl-root {
+  padding: 1.5rem 2rem 3rem;
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, #151c2f 0, #050816 45%, #02030a 100%);
+  color: #e5e7eb;
+}
+
+.cl-card {
+  background: rgba(10, 15, 35, 0.9);
+  border-radius: 16px;
+  box-shadow: 0 0 30px rgba(0,0,0,0.5);
+}
+
+/* HEADER */
+.cl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.cl-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.cl-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* FILTER BAR */
+.cl-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.cl-filter .p-inputtext {
+  width: 260px;
+}
+
+.cl-datetime {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cl-arrow {
+  opacity: 0.7;
+}
+
+/* TABLE */
+.cl-table .p-datatable-wrapper {
+  border-radius: 12px;
+}
+
+.cl-table .p-datatable-thead > tr > th {
+  background: #0b122a;
+  color: #9ca3af;
+  border: none;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.cl-table .p-datatable-tbody > tr {
+  background: #050b22;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.cl-table .p-datatable-tbody > tr:hover {
+  background: #0b1438;
+}
+
+.cl-table .p-datatable-tbody > tr > td {
+  border: none;
+  color: #e5e7eb;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+/* TAG */
+.pr-tag {
+  padding: 0.1rem 0.5rem;
+  font-size: 0.7rem;
+}
+
+/* PAGINATOR */
+.cl-table .p-paginator {
+  background: transparent;
+  border: none;
+  padding-top: 1rem;
+}
+
+.cl-table .p-paginator .p-paginator-page,
+.cl-table .p-paginator .p-paginator-next,
+.cl-table .p-paginator .p-paginator-prev {
+  color: #e5e7eb;
+}

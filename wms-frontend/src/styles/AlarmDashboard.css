@@ -1,0 +1,374 @@
+/* ─── Root — white/red theme ─────────────────────────────────────────────── */
+.adash {
+  min-height: 100vh;
+  background: #F5F6F8;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: #1F2937;
+  padding: 20px 24px;
+}
+
+/* ─── Header ───────────────────────────────────────────────────────────────── */
+.adash__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.adash__header-left { display: flex; flex-direction: column; gap: 4px; }
+.adash__title {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0;
+  color: #1F2937;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.adash__last-update {
+  font-size: 11px;
+  color: #9CA3AF;
+  font-family: monospace;
+}
+
+/* ─── Stats row ────────────────────────────────────────────────────────────── */
+.adash__stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.adash__hist-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(37,99,235,0.08);
+  border: 1px solid rgba(37,99,235,0.25);
+  border-radius: 8px;
+  color: #2563EB;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.adash__hist-btn:hover { background: rgba(37,99,235,0.15); }
+
+.adash__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 14px;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  min-width: 64px;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
+}
+.adash__stat--red   { border-color: rgba(215,25,32,0.25);  background: #FEF2F2; }
+.adash__stat--green { border-color: rgba(22,163,74,0.25);  background: #F0FDF4; }
+
+.adash__stat-label { font-size: 10px; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+.adash__stat-val   { font-size: 20px; font-weight: 800; color: #1F2937; line-height: 1.2; }
+.adash__stat--red   .adash__stat-val { color: #B4151A; }
+.adash__stat--green .adash__stat-val { color: #15803D; }
+
+/* ─── Live badge ───────────────────────────────────────────────────────────── */
+.adash__live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.adash__live-badge--live {
+  background: #F0FDF4;
+  border: 1px solid rgba(22,163,74,0.3);
+  color: #15803D;
+}
+.adash__live-badge--connecting {
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.3);
+  color: #92650C;
+  animation: adash-blink 1s ease-in-out infinite;
+}
+.adash__live-badge--disconnected {
+  background: #FEF2F2;
+  border: 1px solid rgba(215,25,32,0.3);
+  color: #B4151A;
+}
+@keyframes adash-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+.adash__live-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #16A34A;
+  box-shadow: 0 0 6px rgba(22,163,74,0.6);
+  animation: adash-pulse 1.5s ease-in-out infinite;
+}
+@keyframes adash-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.4); opacity: 0.7; }
+}
+
+/* ─── Banners ──────────────────────────────────────────────────────────────── */
+.adash__active-banner {
+  background: #FEF2F2;
+  border: 1px solid rgba(215,25,32,0.3);
+  border-radius: 10px;
+  padding: 10px 18px;
+  margin-bottom: 16px;
+  color: #B4151A;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.adash__warn-banner {
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.3);
+  border-radius: 10px;
+  padding: 10px 18px;
+  margin-bottom: 16px;
+  color: #92650C;
+  font-size: 13px;
+}
+
+/* ─── Filter row (search + active-only toggle) ───────────────────────────── */
+.adash__filter-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
+}
+
+.adash__search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 220px;
+}
+.adash__search-icon {
+  position: absolute;
+  left: 10px;
+  font-size: 13px;
+  pointer-events: none;
+  opacity: 0.6;
+}
+.adash__search-input {
+  width: 100%;
+  background: #F9FAFB;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  padding: 8px 30px 8px 32px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #1F2937;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.15s;
+}
+.adash__search-input:focus {
+  border-color: #D71920;
+  box-shadow: 0 0 0 3px rgba(215,25,32,0.1);
+  background: #fff;
+}
+.adash__search-input::placeholder { color: #9CA3AF; }
+.adash__search-clear {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #9CA3AF;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px;
+  line-height: 1;
+}
+.adash__search-clear:hover { color: #1F2937; }
+
+.adash__toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.adash__toggle-label { font-size: 12px; color: #4B5563; font-weight: 600; }
+.adash__toggle {
+  width: 38px; height: 21px;
+  border-radius: 11px;
+  background: #D1D5DB;
+  border: 1px solid #D1D5DB;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.adash__toggle--on { background: #D71920; border-color: #D71920; }
+.adash__toggle-thumb {
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  background: #fff;
+  position: absolute;
+  top: 2px; left: 2px;
+  transition: left 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.adash__toggle--on .adash__toggle-thumb { left: 20px; }
+
+.adash__filter-count {
+  font-size: 11px;
+  color: #9CA3AF;
+  white-space: nowrap;
+}
+
+/* ─── Empty state ──────────────────────────────────────────────────────────── */
+.adash__empty {
+  text-align: center;
+  padding: 48px 20px;
+  color: #9CA3AF;
+  font-size: 13px;
+  background: #FFFFFF;
+  border: 1px dashed #D1D5DB;
+  border-radius: 12px;
+}
+
+/* ─── Alarm Grid Container — fixed height, own scrollbar, so a long
+   alarm list scrolls in place instead of pushing the page down ────────── */
+.adash__grid-wrap {
+  max-height: calc(100vh - 260px);
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #D1D5DB transparent;
+}
+.adash__grid-wrap::-webkit-scrollbar { width: 8px; }
+.adash__grid-wrap::-webkit-scrollbar-track { background: transparent; }
+.adash__grid-wrap::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 4px; }
+.adash__grid-wrap::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+
+/* ─── Alarm Grid ───────────────────────────────────────────────────────────── */
+.adash__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+/* ─── Alarm Tile — clean cards, no neon glow ──────────────────────────────── */
+.adash__tile {
+  border-radius: 12px;
+  padding: 14px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s, box-shadow 0.15s;
+  cursor: default;
+}
+.adash__tile:hover { transform: translateY(-2px); }
+
+/* Normal tile — calm white card, subtle green top accent */
+.adash__tile--normal {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
+}
+.adash__tile--normal::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: #16A34A;
+  opacity: 0.5;
+}
+.adash__tile--normal:hover {
+  box-shadow: 0 6px 16px rgba(16, 24, 40, 0.08);
+  border-color: #D1D5DB;
+}
+
+/* Active tile — clear red-tinted card, no glow animation, just a
+   solid accent bar and a pulsing status dot for attention */
+.adash__tile--active {
+  background: #FEF2F2;
+  border: 1px solid rgba(215,25,32,0.35);
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
+}
+.adash__tile--active::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #D71920, #B4151A);
+}
+.adash__tile--active:hover {
+  box-shadow: 0 6px 16px rgba(215, 25, 32, 0.12);
+}
+
+.adash__tile-code {
+  font-size: 12px;
+  font-weight: 800;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+  color: #1F2937;
+}
+.adash__tile--active .adash__tile-code { color: #B4151A; }
+
+.adash__tile-msg {
+  font-size: 12px;
+  color: #4B5563;
+  line-height: 1.4;
+  flex: 1;
+}
+.adash__tile--active .adash__tile-msg { color: #7F1D1D; }
+
+.adash__tile-status {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #9CA3AF;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+}
+.adash__tile-status--active { color: #D71920; }
+
+/* Pulsing dot on active — kept, it's genuinely useful for drawing
+   the eye, just re-themed */
+.adash__pulse {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #D71920;
+  display: inline-block;
+  animation: adash-pulse-dot 1.2s ease-in-out infinite;
+}
+@keyframes adash-pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.6); opacity: 0.6; }
+}
+
+/* ─── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .adash { padding: 14px 16px; }
+  .adash__title { font-size: 16px; }
+  .adash__filter-row { flex-direction: column; align-items: stretch; }
+  .adash__grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+}

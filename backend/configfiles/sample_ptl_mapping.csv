@@ -1,0 +1,11 @@
+BAG_CODE,TYPE,PTL_ID
+D002,Regular,1013
+D002,Regular,101
+D028,Regular,1023
+D028,Regular,1030
+D003,Direct,301
+D004,Direct,302
+R001,Rejection,HV
+R001,Rejection,DNF
+R002,Rejection,DBO
+R002,Rejection,IBO

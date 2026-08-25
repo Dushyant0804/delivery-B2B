@@ -1,0 +1,32 @@
+.alertlogs-page {
+  padding: 1.5rem;
+  background-color: #fafafa;
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+.filter-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.filter-input {
+  min-width: 220px;
+}
+
+.table-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  padding: 1rem;
+}

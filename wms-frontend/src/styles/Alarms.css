@@ -1,0 +1,28 @@
+.alarms-page{
+    padding: 20px;
+    background-color: #001d3d;
+  }
+  
+  .filter-card {
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+  
+  .filter-input {
+    min-width: 200px;
+  }
+  
+  .table-card {
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }

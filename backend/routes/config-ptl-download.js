@@ -33,6 +33,7 @@ async function ptlDownloadRoute(fastify, opts) {
       return reply.redirect(`/config-files/${encodeURIComponent(fileName)}`);
 
     } catch (err) {
+      console.log(err)
       fastify.log.error("PTL Download Error:", err);
       return reply.code(500).send({ error: "Failed to download file" });
     }

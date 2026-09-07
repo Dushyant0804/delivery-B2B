@@ -10,32 +10,32 @@ import "../styles/sidebar.css";
 const navigation = [
   { name: "Dashboard", icon: faChartLine, path: "/dashboard" },
   {
-    name: "Parcels", icon: faBox,
-    subItems: [
-      { name: "Auto + Primary", icon: faBox, path: "/dashboard/parcels/auto-primary" },
-      { name: "Primary Sessions", icon: faChartLine, path: "/dashboard/parcels/primary-sessions" },
-    ],
+    name: "Parcels", icon: faBox,path: "/dashboard/parcels/auto-primary"
+    // subItems: [
+    //   { name: "Auto + Primary", icon: faBox, path: "/dashboard/parcels/auto-primary" },
+    //   { name: "Primary Sessions", icon: faChartLine, path: "/dashboard/parcels/primary-sessions" },
+    // ],
   },
   { name: "Calibration", icon: faSliders, path: "/dashboard/calibration" },
   { name: "Payload Status", icon: faChartLine, path: "/dashboard/payload-status" },
   { name: "Alarms", icon: faRobot, path: "/dashboard/alarms" },
   {
-    name: "Bag Seal", icon: faRobot,
-    subItems: [
-      { name: "Primary", icon: faBox, path: "/dashboard/bag-seal/primary" },
-      { name: "Secondary", icon: faBox, path: "/dashboard/bag-seal/secondary" },
-    ],
+    name: "Bag Seal", icon: faRobot,path: "/dashboard/bag-seal/primary"
+    // subItems: [
+    //   { name: "Primary", icon: faBox, path: "/dashboard/bag-seal/primary" },
+    //   { name: "Secondary", icon: faBox, path: "/dashboard/bag-seal/secondary" },
+    // ],
   },
   { name: "Settings", icon: faCog, path: "/dashboard/settings" },
   { name: "Bag Management", icon: faBox, path: "/dashboard/bag-management" },
   { name: "Bag Layout", icon: faBox, path: "/dashboard/bag-layout" },
   { name: "Configuration Settings", icon: faCog, path: "/dashboard/configuration-settings" },
   {
-    name: "Bulk Data", icon: faRobot,
-    subItems: [
-      { name: "Active Data", icon: faBox, path: "/dashboard/bulk-data/active" },
-      { name: "Error Data", icon: faBox, path: "/dashboard/bulk-data/error" },
-    ],
+    name: "Bulk Data", icon: faRobot,path: "/dashboard/bulk-data/active"
+    // subItems: [
+    //   { name: "Active Data", icon: faBox, path: "/dashboard/bulk-data/active" },
+    //   { name: "Error Data", icon: faBox, path: "/dashboard/bulk-data/error" },
+    // ],
   },
 ];
 

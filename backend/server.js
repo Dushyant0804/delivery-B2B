@@ -37,19 +37,17 @@ fastify.register(require("./plugins/queues"));
 
 // rule loader
 fastify.register(require("./plugins/sortEngine"));
-fastify.register(require("./plugins/primarySortEngine"));
 
 // workers
 fastify.register(require("./plugins/sortEngineWorker"));
 fastify.register(require("./plugins/ptl-config-worker"));
-fastify.register(require("./plugins/sorterWorker"));
 fastify.register(require("./plugins/confirmSortWorker"));
-fastify.register(require("./plugins/primarySortPersistWorker"));
 fastify.register(require("./plugins/bagSealEventWorker"));
 fastify.register(require("./plugins/primaryApiWorker"));
 // fastify.register(require("./plugins/operatorAuthWorker"));
 fastify.register(require("./plugins/regexCache"));
 fastify.register(require("./plugins/calibrationWorker"));
+fastify.register(require("./plugins/dwsApiWorker"));
 fastify.register(require("./plugins/secondaryApiWorker"));
 
 
@@ -92,6 +90,7 @@ const sortedPayloadErrorsReportRoutes = require("./routes/sortedPayloadErrorsRep
 
 
 const { FastifyAdapter } = require("@bull-board/fastify");
+const { removeUndefinedFields } = require("bullmq");
 
 // ===== PostgreSQL Connection =====
 // Pool now comes from config/pg.js — single source of truth for
@@ -109,7 +108,8 @@ const { FastifyAdapter } = require("@bull-board/fastify");
 })();
 
 fastify.decorate("pg", pool);
-
+// register setting cache
+fastify.register(require("./config/settingsCache"));
 // ======================================================
 // 🔥 Rebuild Alarm State On Server Start
 // ======================================================
@@ -237,33 +237,6 @@ fastify.register(sortedPayloadsReport, { prefix: "/api" });
 fastify.register(sortedPayloadErrorsReportRoutes, { prefix: "/api" });
 
 
-
-
-
-
-
-
-let cachedSettings = {
-  calibration_wbn: null
-};
-let lastSettingsLoad = 0;
-
-async function getCachedSettings() {
-  const now = Date.now();
-
-  // reload every 5 seconds
-  if (now - lastSettingsLoad > 5000) {
-    const res = await fastify.pg.query(
-      "SELECT calibration_wbn FROM settings WHERE id = 1"
-    );
-    cachedSettings = res.rows[0] || {
-      calibration_wbn: null
-    };
-    lastSettingsLoad = now;
-  }
-
-  return cachedSettings;
-}
 
 // ======================================================
 // 5) WebSocket Setup (FIXED for Fastify)
@@ -414,7 +387,7 @@ async function handleBinData(infeed, ws, data) {
   }
 
 
-  const settings = await getCachedSettings();
+const settings = await fastify.getSettings();
 
   // 🧪 CALIBRATION ROUTING (FIRST PRIORITY)
   if (settings.calibration_wbn && scannedWbn === settings.calibration_wbn) {
@@ -422,6 +395,20 @@ async function handleBinData(infeed, ws, data) {
     console.log("🧪 Calibration box routed:", scannedWbn);
     return; // 🔥 DO NOT PROCESS AS NORMAL PARCEL
   }
+
+  fastify.queues.dwsApiQueue.add("dws-process", {
+      trackingId,
+      wbn: scannedWbn,
+      infeed,
+      length,
+      width,
+      height,
+      weight,
+      Volume,
+      RealVolume,
+      imagepath,
+    }),
+
 
   await fastify.queues.sortEngineQueue.add("shipSort", {
     id,
@@ -435,6 +422,7 @@ async function handleBinData(infeed, ws, data) {
     Volume,
     RealVolume,
   });
+  return
 }
 
 // ======================================================
@@ -485,7 +473,7 @@ wss.on("connection", async (ws, req) => {
   }
 
   // ----------------------------------------------------
-  // CONFIRMATION WS (UNCHANGED)
+  // CONFIRMATION WS
   // ----------------------------------------------------
   if (wsPath === "/confirmation-data") {
     console.log("📝 WS Connected: /confirmation-data");
@@ -496,27 +484,36 @@ wss.on("connection", async (ws, req) => {
         console.log(":outbox_tray: CONFIRMATION Event:", data);
         const id = data.id;
         const wbn = data.wbn || data.barcode;
-        const sort = data.sort;
+        const sort = data.sort; // "SORTED" or "REJECTED" — the only field we use for the sort column
         const bag_code = data.bag_code;
         if (!wbn) {
           console.warn(":warning: Received confirmation without WBN:", data);
           return;
         }
-        // ONLY handle 'success'
-        if (sort == "reject") {
-          ws.send(JSON.stringify({ id, wbn, status: "CONFIRM_IGNORED" }));
-          return;
-        }
+        // Both SORTED and REJECTED continue through the pipeline (REJECTED
+        // still needs its reason/status recorded in the DB) — no early
+        // ignore gate here anymore.
         if (!bag_code) {
           console.warn(":warning: Missing bag_code in confirmation:", data);
           ws.send(JSON.stringify({ id, wbn, status: "NO_BAG_CODE" }));
           return;
         }
+
+        // 🔥 PLC confirmation payload doesn't include tracking_id at all — that's
+        // expected. primaryApiWorker / secondaryApiWorker both fall back to a
+        // wbn-based lookup (ORDER BY id DESC LIMIT 1) whenever tracking_id is
+        // missing, so we just pass data.tracking_id through as-is (undefined is
+        // fine — it's a property read, not a bare identifier, so it can't throw).
+        //
+        // The "status" field PLC also sends is unused/ignored everywhere below —
+        // "sort" (data.sort, values "SORTED"/"REJECTED") is the single source of
+        // truth for the sort column across all three queues.
         await fastify.queues.primaryApiQueue.add("primary", {
           wbn: data.wbn,
           bag_code: data.bag_code,
-          status: data.status,       // SORTED or REJECT
-          reason: data.reason
+          sort,                       // SORTED or REJECTED
+          reason: data.reason,
+          tracking_id: data.tracking_id,
         });
         // ----------------------------------------------------
         // 2) ENQUEUE NEW confirmSort queue
@@ -525,9 +522,17 @@ wss.on("connection", async (ws, req) => {
           id,
           wbn,
           bag_code,
-          sort,                       // "success"
-          status: data.status || null,
+          sort,
           reason: data.reason || null
+        });
+
+        await fastify.queues.secondaryApiQueue.add("secondary-event", {
+          wbn,
+          bag_code,
+          ptl_id: data.ptl_id,
+          sort,
+          reason: data.reason,
+          tracking_id: data.tracking_id,
         });
         // ----------------------------------------------------
         // 3) Send response to PLC
@@ -701,7 +706,8 @@ fastify.after(() => {
     bagSealEventQueue,
     confirmSortQueue,
     calibrationQueue,
-    primarySortPersistQueue } = fastify.queues;
+    primarySortPersistQueue,
+    dwsApiQueue } = fastify.queues;
 
   createBullBoard({
     queues: [
@@ -716,6 +722,7 @@ fastify.after(() => {
       new BullMQAdapter(bagSealEventQueue),
       new BullMQAdapter(calibrationQueue),
       new BullMQAdapter(primarySortPersistQueue),
+      new BullMQAdapter(dwsApiQueue),
     ],
     serverAdapter,
   });

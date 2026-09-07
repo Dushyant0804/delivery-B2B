@@ -240,7 +240,7 @@ function FilterDrawer({ open, onClose, dateRange, onApplyDate, onQuickSelect, ac
                     >
                       <span style={{ fontSize: 15 }}>{r.icon}</span>
                       <span className="bs-fd-preset__label">{r.label}</span>
-                      {isActive && <span style={{ color: "#60a5fa", fontSize: 11 }}>✓</span>}
+                      {isActive && <span className="pr-fd-preset__check" style={{ color: "#D71920", fontWeight: 700, fontSize: 11 }}>✓</span>}
                     </button>
                   );
                 })}
@@ -250,9 +250,9 @@ function FilterDrawer({ open, onClose, dateRange, onApplyDate, onQuickSelect, ac
 
           {tab === "custom" && (
             <div className="bs-fd-custom">
-              <DateTimePicker label="Start" color="#3b82f6" value={start} onChange={setStart} />
-              <div style={{ height: 1, background: "#1e2740", margin: "6px 0 10px" }} />
-              <DateTimePicker label="End"   color="#f97316" value={end}   onChange={setEnd} />
+              <DateTimePicker label="Start" color="#D71920" value={start} onChange={setStart} />
+              <div style={{ height: 1, background: "#E5E7EB", margin: "6px 0 10px" }} />
+              <DateTimePicker label="End"   color="#1F2937" value={end}   onChange={setEnd} />
               {diffMs > 0
                 ? <div className="bs-fd-duration">⏱ Duration: <b>{hrs}h {mins}m</b></div>
                 : start && end && <div className="bs-fd-duration bs-fd-duration--warn">⚠️ End must be after Start</div>
@@ -272,7 +272,7 @@ function FilterDrawer({ open, onClose, dateRange, onApplyDate, onQuickSelect, ac
               ? <span className="bs-fd-footer__badge">{activeLabel}</span>
               : dateRange.start
                 ? <span style={{ fontSize: 11 }}>{dateRange.start.replace("T", " ")} → {dateRange.end?.replace("T", " ")} IST</span>
-                : <span style={{ fontSize: 11, color: "#475569" }}>All records</span>
+                : <span style={{ fontSize: 11, color: "#9CA3AF" }}>All records</span>
             }
           </div>
         </div>
@@ -484,8 +484,8 @@ const BagSealEvents = () => {
               <label className="bs-field-label">Start Date &amp; Time</label>
               <button className="bs-field-input bs-field-input--btn" onClick={() => setDrawerOpen(true)}>
                 {dateRange.start
-                  ? <span style={{ color: "#e2e8f0" }}>{dateRange.start.replace("T", " ")}</span>
-                  : <span style={{ color: "#6b7280" }}>Select start…</span>
+                  ? <span style={{ color: "#1F2937" }}>{dateRange.start.replace("T", " ")}</span>
+                  : <span style={{ color: "#9CA3AF" }}>Select start…</span>
                 }
                 <span className="bs-field-input__icon">📅</span>
               </button>
@@ -496,8 +496,8 @@ const BagSealEvents = () => {
               <label className="bs-field-label">End Date &amp; Time</label>
               <button className="bs-field-input bs-field-input--btn" onClick={() => setDrawerOpen(true)}>
                 {dateRange.end
-                  ? <span style={{ color: "#e2e8f0" }}>{dateRange.end.replace("T", " ")}</span>
-                  : <span style={{ color: "#6b7280" }}>Select end…</span>
+                  ? <span style={{ color: "#1F2937" }}>{dateRange.end.replace("T", " ")}</span>
+                  : <span style={{ color: "#9CA3AF" }}>Select end…</span>
                 }
                 <span className="bs-field-input__icon">📅</span>
               </button>

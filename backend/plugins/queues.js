@@ -117,11 +117,22 @@ module.exports = fp(async function queuesPlugin(fastify, opts) {
     },
   });
 
+  const dwsApiQueue = new Queue("dwsApiQueue", {
+    connection,
+    defaultJobOptions: {
+      attempts: 4,
+      backoff: { type: "exponential", delay: 2000 },
+      removeOnComplete: 1000,
+      removeOnFail: 5000,
+    },
+  });
+
   // OPTIONAL DLQ queues (if you want separate queues)
   const sortEngineDLQ = new Queue("sortEngineDLQ", { connection });
   const confirmEngineDLQ = new Queue("confirmEngineDLQ", { connection });
 
   fastify.decorate("queues", {
+    dwsApiQueue,
     ptlConfigQueue,
     sorterQueue,
     sortEngineQueue,

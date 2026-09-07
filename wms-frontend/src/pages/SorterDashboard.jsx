@@ -752,42 +752,6 @@ export default function SorterDashboard() {
               ]}
             />
           </div>
-
-          {/* ══════════════════════ PRIMARY SORTING (HHD) SECTION ══════════════════════ */}
-          <div className="mode-section">
-            <div className="section-label section-label--hhd">Primary Sorting — HHD Mode</div>
-
-            <div className="stat-cards">
-              <StatCard label="Shipments Scanned"  value={hhdStats.scanned.toLocaleString()}  accent="#2563EB" icon="📦" />
-              <StatCard label="Shipments Sorted"   value={hhdStats.sorted.toLocaleString()}   accent="#16A34A" icon="✅" />
-              <StatCard label="Shipments Rejected" value={hhdStats.rejected.toLocaleString()} accent="#D71920" icon="⚠️" />
-              <StatCard label="Rejection %"        value={`${hhdStats.rejectionPct}%`}        accent="#B4151A" icon="📊" />
-            </div>
-
-            <div className="charts-row">
-              <ChartCard
-                title="Rejected Shipments Details (HHD)"
-                toggle={hhdRejPie}
-                toggleLabel="Pie View"
-                onToggle={() => setHhdRejPie(p => !p)}
-                onDownload={() => exportToExcel(rejDataHHD, "rejection_details_hhd", "Rejections HHD")}
-              >
-                <ToggleableChart data={rejDataHHD} showPie={hhdRejPie} barColor="#D71920" />
-              </ChartCard>
-            </div>
-
-            <div className="throughput-card">
-              <div className="throughput-card__header">
-                <h2 className="throughput-card__title">Primary Sorting Throughput (Time)</h2>
-                <button className="chart-dl-btn" title="Download Excel" onClick={() => exportToExcel(tpDataHHD, "primary_sorting_throughput", "Throughput")}>⬇</button>
-              </div>
-              <ThroughputChart
-                data={tpDataHHD}
-                series={[{ key: "HHD", color: "#D71920" }]}
-              />
-            </div>
-          </div>
-
           <div className="more-charts-placeholder">+ More charts coming soon</div>
         </>
       )}

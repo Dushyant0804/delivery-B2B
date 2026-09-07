@@ -2,56 +2,39 @@
 const fp = require("fastify-plugin");
 const { Worker } = require("bullmq");
 const IORedis = require("ioredis");
+const { redisConfig } = require("../config/redis");
 
 module.exports = fp(async function confirmSortWorkerPlugin(fastify, opts) {
-  const connection = new IORedis({
-    host: process.env.REDIS_HOST || "127.0.0.1",
-    port: process.env.REDIS_PORT || 6379,
-    maxRetriesPerRequest: null,
-  });
+  const connection = new IORedis(redisConfig);
 
   new Worker(
     "confirmSortQueue",
     async (job) => {
-      const { id, wbn, bag_code, sort, reason, status } = job.data || {};
+      // 🔥 Job now sends "sort" instead of "status" — same SORTED/REJECTED-style
+      // string values, renamed to match primaryApiWorker/secondaryApiWorker and
+      // the primary_bin_data table's actual "sort" column name.
+      const { wbn, bag_code, reason, sort, tracking_id } = job.data || {};
       const client = await fastify.pg.connect();
       let isNewWbn = false;
 
       if (!wbn || !bag_code) {
-        console.warn("confirmSortQueue: missing wbn or bag_code:", job.data);
+        console.warn("⚠️ confirmSortQueue: missing wbn or bag_code:", job.data);
         client.release();
         return;
       }
 
-      /** Only accept PLC success packets */
-      // if (String(sort).toLowerCase() !== "success") {
-      //   console.log("confirmSortQueue: ignored non-success:", job.data);
-      //   client.release();
-      //   return;
-      // }
-
       try {
         await client.query("BEGIN");
 
-        /***************************************************
-         0️⃣ WEIGHT / REALVOLUME — from the DWS scan, not the PLC
-         confirmation. The confirmation payload only carries an infeed
-         id, not a tracking_id, so there's no exact per-scan match
-         available here — this takes the wbn's last scan by scantime.
-         That's fine: the dedup check just below (wbns array) is what
-         actually prevents double-counting on a re-confirm, not this
-         lookup, so an approximate "latest scan" match doesn't risk
-         double-counting anything — worst case on a genuine same-wbn
-         double-induction (jam recovery) is picking the wrong one of
-         two scans' weight, not counting either twice.
-        ***************************************************/
+        // ---------------------------------------------------
+        // 0️⃣ WEIGHT / REALVOLUME LOOKUP (Exact match by tracking_id/latest scan)
+        // ---------------------------------------------------
         const scanRes = await client.query(
-          `SELECT weight, real_volume
+          `SELECT tracking_id, weight, real_volume
            FROM primary_bin_data
-           WHERE wbn = $1
-           ORDER BY scantime DESC
+           WHERE ${tracking_id ? "tracking_id = $1" : "wbn = $1 ORDER BY id DESC"}
            LIMIT 1`,
-          [wbn]
+          [tracking_id || wbn]
         );
 
         const scannedWeight = scanRes.rows.length ? Number(scanRes.rows[0].weight) : NaN;
@@ -59,16 +42,11 @@ module.exports = fp(async function confirmSortWorkerPlugin(fastify, opts) {
 
         const scannedRealVolume = scanRes.rows.length ? Number(scanRes.rows[0].real_volume) : NaN;
         const safeRealVolume = Number.isFinite(scannedRealVolume) ? scannedRealVolume : 0;
+        const effectiveTrackingId = tracking_id || scanRes.rows[0]?.tracking_id;
 
-        /***************************************************
-         1️⃣ BAGS_WBN TABLE UPSERT
-         count/weight/realvolume are running totals for this
-         physical bag. We lock+read first so we know for certain
-         whether this wbn is actually new to the bag (isNewWbn) —
-         needed both to avoid double-counting a re-confirm AND to
-         keep the Redis chute:{bag_code} counters (read by
-         sortEngine.js on every scan) in lockstep with Postgres.
-        ***************************************************/
+        // ---------------------------------------------------
+        // 1️⃣ BAGS_WBN TABLE UPSERT
+        // ---------------------------------------------------
         const existingRow = await client.query(
           `SELECT wbns FROM bags_wbn WHERE bag_code=$1 FOR UPDATE`,
           [bag_code]
@@ -84,20 +62,10 @@ module.exports = fp(async function confirmSortWorkerPlugin(fastify, opts) {
         if (isNewBagRow) {
           await client.query(
             `INSERT INTO bags_wbn (bag_code, wbns, count, weight, realvolume, first_drop_at, updated_at)
-             VALUES ($1, ARRAY[$2], 1, $3, $4, NOW(), NOW())`,
+             VALUES ($1, ARRAY[$2::text], 1, $3, $4, NOW(), NOW())`,
             [bag_code, wbn, safeWeight, safeRealVolume]
           );
         } else if (isNewWbn) {
-          // $2::text — without this cast, Postgres has to infer $2's
-          // type for the `wbns || $2` expression and defaults to
-          // text[] (matching wbns' own type) rather than the scalar
-          // text it actually is, since text[]||text[] and text[]||text
-          // are both valid overloads. node-pg then sends the plain wbn
-          // string, and Postgres tries to parse it AS an array literal
-          // — "malformed array literal", since a bare string isn't
-          // valid array syntax (must start with '{'). Only bites once
-          // a bag already has a row (isNewBagRow branch above uses
-          // ARRAY[$2], which disambiguates the type on its own).
           await client.query(
             `UPDATE bags_wbn
              SET wbns = wbns || $2::text,
@@ -110,7 +78,6 @@ module.exports = fp(async function confirmSortWorkerPlugin(fastify, opts) {
             [bag_code, wbn, safeWeight, safeRealVolume]
           );
         }
-        // else: duplicate wbn for this bag — no-op, matches prior behavior
 
         if (isNewWbn) {
           await client.query(
@@ -126,9 +93,9 @@ module.exports = fp(async function confirmSortWorkerPlugin(fastify, opts) {
           );
         }
 
-        /***************************************************
-         2️⃣ MOVE PAYLOAD (ONLY IF EXISTS)
-        ***************************************************/
+        // ---------------------------------------------------
+        // 2️⃣ MOVE PAYLOAD (FROM sorted_payloads -> success_payloads & audit log)
+        // ---------------------------------------------------
         const sortedRes = await client.query(
           `SELECT payload FROM sorted_payloads WHERE wbn=$1 LIMIT 1`,
           [wbn]
@@ -137,77 +104,77 @@ module.exports = fp(async function confirmSortWorkerPlugin(fastify, opts) {
         if (sortedRes.rows.length > 0) {
           const payload = sortedRes.rows[0].payload;
 
-          /***************************************************
-           2.1 MOVE TO success_payloads
-          ***************************************************/
-          const updRes = await client.query(
-            `UPDATE success_payloads
-     SET payload=$2, updated_at=NOW()
-     WHERE wbn=$1`,
+          // 2.1 Update/Insert into success_payloads
+          await client.query(
+            `INSERT INTO success_payloads (wbn, payload, updated_at)
+             VALUES ($1, $2, NOW())
+             ON CONFLICT (wbn) DO UPDATE SET
+               payload = EXCLUDED.payload,
+               updated_at = NOW()`,
             [wbn, payload]
           );
 
-          if (updRes.rowCount === 0) {
+          // 2.2 Update sorter_audit_log fetch_payload
+          if (effectiveTrackingId) {
             await client.query(
-              `INSERT INTO success_payloads (wbn, payload, updated_at)
-       VALUES ($1,$2,NOW())`,
-              [wbn, payload]
+              `UPDATE sorter_audit_log
+               SET fetch_payload = $1,
+                   updated_at = NOW()
+               WHERE tracking_id = $2`,
+              [JSON.stringify(payload), effectiveTrackingId]
+            );
+          } else {
+            await client.query(
+              `UPDATE sorter_audit_log
+               SET fetch_payload = $1,
+                   updated_at = NOW()
+               WHERE id = (
+                 SELECT id FROM sorter_audit_log WHERE wbn = $2 ORDER BY id DESC LIMIT 1
+               )`,
+              [JSON.stringify(payload), wbn]
             );
           }
 
-          /***************************************************
-           2.2 UPDATE sorter_audit_log.fetch_payload ✅ NEW
-          ***************************************************/
-          await client.query(
-            `UPDATE sorter_audit_log
-     SET fetch_payload = $2,
-         updated_at = NOW()
-     WHERE wbn = $1`,
-            [wbn, payload]
-          );
-
-          /***************************************************
-           2.3 DELETE FROM sorted_payloads
-          ***************************************************/
+          // 2.3 Delete from sorted_payloads buffer
           await client.query(
             `DELETE FROM sorted_payloads WHERE wbn=$1`,
             [wbn]
           );
         } else {
-          console.log(
-            `confirmSortQueue: REJECT parcel, no payload move for WBN ${wbn}`
-          );
+          console.log(`ℹ️ confirmSortQueue: No buffer payload in sorted_payloads for WBN ${wbn}`);
         }
 
-        /***************************************************
-         3️⃣ UPDATE primary_bin_data (ALWAYS)
-        ***************************************************/
-        await client.query(
-          `
-          UPDATE primary_bin_data
-          SET
-            final_bag = $1,
-            sort = $2,
-            reason = $3,
-            sorttime = NOW()
-          WHERE wbn = $4
-          `,
-          [
-            bag_code,        // final bag from PLC
-            status,            // success
-            reason || null,  // NDIM / IBO / etc
-            wbn,
-          ]
-        );
+        // ---------------------------------------------------
+        // 3️⃣ UPDATE primary_bin_data (Row-targeted)
+        // ---------------------------------------------------
+        if (effectiveTrackingId) {
+          await client.query(
+            `UPDATE primary_bin_data
+             SET final_bag = $1,
+                 sort = $2,
+                 reason = $3,
+                 sorttime = NOW()
+             WHERE tracking_id = $4`,
+            [bag_code, sort, reason || null, effectiveTrackingId]
+          );
+        } else {
+          await client.query(
+            `UPDATE primary_bin_data
+             SET final_bag = $1,
+                 sort = $2,
+                 reason = $3,
+                 sorttime = NOW()
+             WHERE id = (
+               SELECT id FROM primary_bin_data WHERE wbn = $4 ORDER BY id DESC LIMIT 1
+             )`,
+            [bag_code, sort, reason || null, wbn]
+          );
+        }
 
         await client.query("COMMIT");
 
         // ---------------------------------------------------
-        // 4️⃣ SYNC REDIS CHUTE COUNTERS (post-commit — Postgres is the
-        // source of truth, this is the fast-read mirror sortEngine.js
-        // hits on every scan). Runs outside the DB transaction since
-        // Redis isn't transactional with it anyway; a failure here
-        // logs but never fails the confirm.
+        // 4️⃣ SYNC REDIS CHUTE COUNTERS (Post-Commit)
         // ---------------------------------------------------
         if (isNewWbn) {
           try {
@@ -219,16 +186,14 @@ module.exports = fp(async function confirmSortWorkerPlugin(fastify, opts) {
               .hincrbyfloat(chuteKey, "realvolume", safeRealVolume)
               .exec();
           } catch (err) {
-            console.error("❌ chute redis sync failed:", err);
+            console.error("❌ chute redis sync failed:", err.message);
           }
         }
 
-        console.log(
-          `confirmSortQueue: updated primary_bin_data for WBN=${wbn}, bag=${bag_code}`
-        );
+        console.log(`✅ confirmSortQueue: Confirmation completed for WBN=${wbn}, Bag=${bag_code}`);
       } catch (err) {
         await client.query("ROLLBACK");
-        console.error("confirmSort worker error:", err);
+        console.error("❌ confirmSort worker error:", err.message);
         throw err;
       } finally {
         client.release();

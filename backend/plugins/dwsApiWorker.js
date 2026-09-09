@@ -107,7 +107,7 @@ module.exports = fp(async function dwsApiWorkerPlugin(fastify) {
         };
         console.log(`❌ [Weight API Error] WBN: ${wbn} - ${err.message}`);
       }
-
+console.log("entering into the sorter_audit_log")
       // ======================================================
       // 4. STEP 3: SINGLE DATABASE UPSERT (FIXED INDEXING)
       // ======================================================

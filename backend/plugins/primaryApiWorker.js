@@ -129,7 +129,7 @@ module.exports = fp(async function primaryApiWorker(fastify) {
             primaryResponse = { error: e.message };
           }
         }
-
+console.log("updating the code")
         // ======================================================
         // 3️⃣ UPDATE SORTER AUDIT LOG (WITH PRIMARY & CONFIRMATION FIELDS)
         // ======================================================

@@ -83,7 +83,7 @@ module.exports = fp(async function secondaryApiWorker(fastify) {
             ? rawToken
             : `Bearer ${rawToken}`;
 // https://stream.delhivery.com/v1
-          const res2 = await fetch("http://localhost:4000/v1", {
+          const res2 = await fetch("http://localhost:4000/secondary/v1", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

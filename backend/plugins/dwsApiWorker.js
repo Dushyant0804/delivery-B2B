@@ -21,9 +21,19 @@ module.exports = fp(async function dwsApiWorkerPlugin(fastify) {
         RealVolume,
       } = job.data;
 
-      // 1. Settings & Token Check
+      // 1. Settings & Flags Check
       const settings = fastify.getSettings();
+
+      const giEnabled = settings?.gi_api === true;
+      const weightEnabled = settings?.weight_api === true;
+
+      // Both GI and Weight use the same token (weight_api_token column)
       const rawToken = settings?.weight_api_token || process.env.DELHIVERY_AUTH_TOKEN || "";
+
+      if (!giEnabled && !weightEnabled) {
+        console.log(`⚠️ [DWS API Skipped] Both GI & Weight APIs disabled for WBN: ${wbn}`);
+        return;
+      }
 
       if (!rawToken) {
         console.log(`⚠️ [DWS API Skipped] No token configured for WBN: ${wbn}`);
@@ -47,7 +57,7 @@ module.exports = fp(async function dwsApiWorkerPlugin(fastify) {
         : "Noida_DeriSkaner_H (Uttar Pradesh)";
 
       // ======================================================
-      // 2. STEP 1: GI API (ALWAYS FIRST)
+      // 2. STEP 1: GI API (only if gi_api = true)
       // ======================================================
       const giPayload = {
         center: centerName,
@@ -57,26 +67,31 @@ module.exports = fp(async function dwsApiWorkerPlugin(fastify) {
 
       let giStatus = false; // Boolean as per DB schema
       let giResponse = null;
-// https://track.delhivery.com/api/mob-loc/mi/
-      try {
-        const giRes = await axios.post("http://localhost:4000/api/mob-loc/mi/", giPayload, {
-          timeout: 6000,
-          headers,
-        });
 
-        giStatus = giRes.status === 200 || giRes.status === 201;
-        giResponse = giRes.data;
-      } catch (err) {
-        giStatus = false;
-        giResponse = {
-          error: err.message,
-          data: err.response?.data || null,
-        };
-        console.log(`❌ [GI API Error] WBN: ${wbn} - ${err.message}`);
+      if (giEnabled) {
+        try {
+          const giRes = await axios.post("http://localhost:4000/api/mob-loc/mi/", giPayload, {
+            timeout: 6000,
+            headers,
+          });
+
+          giStatus = giRes.status === 200 || giRes.status === 201;
+          giResponse = giRes.data;
+        } catch (err) {
+          giStatus = false;
+          giResponse = {
+            error: err.message,
+            data: err.response?.data || null,
+          };
+          console.log(`❌ [GI API Error] WBN: ${wbn} - ${err.message}`);
+        }
+      } else {
+        giResponse = { skipped: true, reason: "gi_api disabled in settings" };
+        console.log(`⏭️ [GI API Skipped] gi_api = false for WBN: ${wbn}`);
       }
 
       // ======================================================
-      // 3. STEP 2: WEIGHT API (ALWAYS SECOND)
+      // 3. STEP 2: WEIGHT API (only if weight_api = true)
       // ======================================================
       const weightPayload = {
         wbn: String(wbn || "").trim(),
@@ -91,23 +106,29 @@ module.exports = fp(async function dwsApiWorkerPlugin(fastify) {
       let weightStatus = false; // Boolean as per DB schema
       let weightResponse = null;
 
-      try {
-        const weightRes = await axios.post("http://localhost:4000/api/p/update/", weightPayload, {
-          timeout: 6000,
-          headers,
-        });
+      if (weightEnabled) {
+        try {
+          const weightRes = await axios.post("http://localhost:4000/api/p/update/", weightPayload, {
+            timeout: 6000,
+            headers,
+          });
 
-        weightStatus = weightRes.status === 200 || weightRes.status === 201;
-        weightResponse = weightRes.data;
-      } catch (err) {
-        weightStatus = false;
-        weightResponse = {
-          error: err.message,
-          data: err.response?.data || null,
-        };
-        console.log(`❌ [Weight API Error] WBN: ${wbn} - ${err.message}`);
+          weightStatus = weightRes.status === 200 || weightRes.status === 201;
+          weightResponse = weightRes.data;
+        } catch (err) {
+          weightStatus = false;
+          weightResponse = {
+            error: err.message,
+            data: err.response?.data || null,
+          };
+          console.log(`❌ [Weight API Error] WBN: ${wbn} - ${err.message}`);
+        }
+      } else {
+        weightResponse = { skipped: true, reason: "weight_api disabled in settings" };
+        console.log(`⏭️ [Weight API Skipped] weight_api = false for WBN: ${wbn}`);
       }
-console.log("entering into the sorter_audit_log")
+
+      console.log("entering into the sorter_audit_log");
       // ======================================================
       // 4. STEP 3: SINGLE DATABASE UPSERT (FIXED INDEXING)
       // ======================================================

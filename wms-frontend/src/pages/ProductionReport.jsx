@@ -566,7 +566,7 @@ const ProductionReport = () => {
           scrollHeight="55vh"
           resizableColumns
           columnResizeMode="expand"
-          tableStyle={{ minWidth: "2000px" }}
+          tableStyle={{ minWidth: "3400px" }}
         >
           <Column
             header="S.No"
@@ -594,7 +594,34 @@ const ProductionReport = () => {
             body={r => jsonBtn(r.secondary_payload, "Secondary Payload")} />
           <Column header="Sec Response"     style={{ minWidth: 120 }}
             body={r => jsonBtn(r.secondary_response, "Secondary Response")} />
-          <Column header="Image"       style={{ minWidth: 75  }}
+
+          {/* ── GI API ── */}
+          <Column header="GI"          style={{ minWidth: 75  }}
+            body={r => <StatusBadge value={r.gi_status} />} />
+          <Column header="GI Payload"  style={{ minWidth: 120 }}
+            body={r => jsonBtn(r.gi_payload, "GI Payload")} />
+          <Column header="GI Response" style={{ minWidth: 130 }}
+            body={r => jsonBtn(r.gi_response, "GI Response")} />
+
+          {/* ── Weight API ── */}
+          <Column header="Weight"          style={{ minWidth: 90  }}
+            body={r => <StatusBadge value={r.weight_status} />} />
+          <Column header="Weight Payload"  style={{ minWidth: 130 }}
+            body={r => jsonBtn(r.weight_payload, "Weight Payload")} />
+          <Column header="Weight Response" style={{ minWidth: 140 }}
+            body={r => jsonBtn(r.weight_response, "Weight Response")} />
+
+          {/* ── Fetch / S3 ── */}
+          <Column header="Fetch Payload" style={{ minWidth: 120 }}
+            body={r => jsonBtn(r.fetch_payload, "Fetch Payload")} />
+          <Column header="S3 Path"       style={{ minWidth: 160 }}
+            body={r => r.s3_path
+              ? <a href={r.s3_path} target="_blank" rel="noreferrer" className="pd-json-btn" title={r.s3_path}>
+                  🔗 {r.s3_path.split("/").pop()}
+                </a>
+              : <span className="pd-cell-muted">—</span>} />
+
+          <Column header="Image Status"       style={{ minWidth: 75  }}
             body={r => <StatusBadge value={r.image_status} />} />
           <Column field="sorter_location" header="Location"  style={{ minWidth: 90  }}
             body={r => r.sorter_location || <span className="pd-cell-muted">—</span>} />

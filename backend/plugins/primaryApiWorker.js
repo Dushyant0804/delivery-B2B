@@ -45,6 +45,10 @@ module.exports = fp(async function primaryApiWorker(fastify) {
 
       try {
         const s = typeof fastify.getSettings === "function" ? fastify.getSettings() : {};
+         if (s.primary_api !== true || !s.primary_api_token) {
+          // Secondary API not enabled — skip execution
+          return;
+        }
 
         // Fetch bin data by unique tracking_id
         const binRes = await client.query(
@@ -129,7 +133,6 @@ module.exports = fp(async function primaryApiWorker(fastify) {
             primaryResponse = { error: e.message };
           }
         }
-console.log("updating the code")
         // ======================================================
         // 3️⃣ UPDATE SORTER AUDIT LOG (WITH PRIMARY & CONFIRMATION FIELDS)
         // ======================================================

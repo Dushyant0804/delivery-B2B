@@ -182,7 +182,6 @@ module.exports = fp(async function sortEnginePlugin(fastify, opts) {
   function buildIndex(rows) {
     rulesIndex = {};
     anyFallback = [];
-
     for (const r of rows) {
       const ntc = nk(r.ntc);
       const mot = nk(r.mot);
@@ -291,6 +290,7 @@ module.exports = fp(async function sortEnginePlugin(fastify, opts) {
       const arr = rulesIndex[c]?.[m]?.[cl];
       if (arr?.length) return arr[0];
     }
+
     return null;
   }
 
